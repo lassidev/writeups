@@ -87,7 +87,7 @@ The `/console` endpoint seems interesting. Upon visiting it, we're met with a lo
 
 ![image](https://user-images.githubusercontent.com/77704710/158024768-fe9ead3e-38c3-454d-88d0-a16610bc3cbe.png)
 
-So it seems like bruteforcing the login is out of the question, since we would need to fill out the CAPTCHA each login attempt. Unless we somehow find a way to bypass it!
+So it seems like bruteforcing the login is out of the question, since we would need to fill out the **CAPTCHA** for each login attempt. Unless we somehow find a way to bypass it!
 
 Time to fuzz the `/console` endpoint with **gobuster** again for additional directories. 
 
