@@ -9,6 +9,8 @@ Link: https://tryhackme.com/room/biteme
 
 The creator is [fire015](https://tryhackme.com/p/fire015).
 
+## user.txt
+
 Let's start by launching the VM and getting the IP, which in our case was `10.10.21.12`.
 
 First step of enumerating boxes should be **nmap** scanning all of the available ports (`-p-` switch), and getting the info from running services on the box. The `-A` switch enables "aggressive scanning", which gets OS detection, version + script scanning, and traceroute.
@@ -434,6 +436,9 @@ The application seems to be a basic webshell of sorts:
 By using the "**File browser**", we were able to locate `user.txt` in `/home/jason/user.txt`
 
 ![image](https://user-images.githubusercontent.com/77704710/158025215-395f47ab-78c9-4864-9ab5-0ff13dd886a0.png)
+
+
+## root.txt
 
 Alright, now on to get a shell on the box. Since the webshell is a simple list/read, it's probably hard to try any sort of reverse shell here. Luckily, jason has also left their **SSH** private key unprotected in their home directory `/home/jason/.ssh/id_rsa`.
 
