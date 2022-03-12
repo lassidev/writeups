@@ -36,7 +36,7 @@ PORT   STATE SERVICE REASON         VERSION
 
 `22`, which is **SSH**, and `80` with an **Apache webserver**.
 
-Before starting any bruteforcing attempts, let's take a look at the running webserver by navigating to `http://10.10.21.12` in our web browser (**Firefox**). It's also recommended to leave **Burp** running in the background, so that every request is logged into the **HTTP proxy history**.
+Before starting any bruteforcing attempts to **SSH** or searching for **Apache** exploits, let's take a look at the running webserver by navigating to `http://10.10.21.12` in our web browser (**Firefox**). It's also recommended to leave **Burp** running in the background, so that every request is logged into the **HTTP proxy history**.
 
 It's the default **Apache** webpage. 
 
