@@ -4,6 +4,9 @@
 
 A **medium TryHackMe** room with **php**, **privesc**, **cracking**, and **fail2ban** as tags. 
 
+
+Link: https://tryhackme.com/room/biteme
+
 The creator is [fire015](https://tryhackme.com/p/fire015).
 
 Let's start by launching the VM and getting the IP, which in our case was `10.10.21.12`.
