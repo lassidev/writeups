@@ -479,13 +479,13 @@ Cost 1 (KDF/cipher [0=MD5/AES 1=MD5/3DES 2=Bcrypt/AES]) is 0 for all loaded hash
 Cost 2 (iteration count) is 1 for all loaded hashes
 Will run 4 OpenMP threads
 Press 'q' or Ctrl-C to abort, almost any other key for status
-1a2b3c4d         (id_rsa)     
+<redacted>         (id_rsa)     
 1g 0:00:00:00 DONE (2022-03-12 16:44) 50.00g/s 251200p/s 251200c/s 251200C/s christina1..dumnezeu
 Use the "--show" option to display all of the cracked passwords reliably
 Session completed. 
 ``` 
 
-We can now log in with the key and the passphrase "`1a2b3c4d`".
+We can now log in with the key and the passphrase "`<redacted>`".
 
 ``` 
 ┌──(lassi㉿kali)-[~/tryhackme/biteme]
