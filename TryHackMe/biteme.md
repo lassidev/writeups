@@ -11,7 +11,7 @@ The creator is [fire015](https://tryhackme.com/p/fire015).
 
 ## user.txt
 
-Let's start by launching the VM and getting the IP, which in our case was `10.10.21.12`.
+Let's start by launching the **VM** and getting the **IP** address, which in our case was `10.10.21.12`.
 
 First step of enumerating boxes should be **nmap** scanning all of the available ports (`-p-` switch), and getting the info from running services on the box. The `-A` switch enables "aggressive scanning", which gets OS detection, version + script scanning, and traceroute.
 ```
@@ -41,7 +41,7 @@ PORT   STATE SERVICE REASON         VERSION
 
 `22`, which is **SSH**, and `80` with an **Apache webserver**.
 
-Before starting any bruteforcing attempts to **SSH** or searching for **Apache** exploits, let's take a look at the running webserver by navigating to `http://10.10.21.12` in our web browser (**Firefox**). It's also recommended to leave **Burp** running in the background, so that every request is logged into the **HTTP proxy history**.
+Before starting any bruteforcing attempts to **SSH** or searching for **Apache** exploits, let's take a look at the running webserver by navigating to `http://10.10.21.12` in our web browser (**Firefox**). It's also recommended to leave **Burp** running in the background, so that every request/response is logged into the **HTTP proxy history**.
 
 It's the default **Apache** webpage. 
 
