@@ -206,7 +206,7 @@ http://hassankhanyusufzai.com/SSRF-to-LFI/
 
 It seems as though by default `wkhtmltopdf` doesn't properly check if a redirection is happening to a local file, and fetches it. Let's construct a diagram of this happening:
 
-![Pasted image 20220421221617.png](attachments/Pasted%20image%2020220421221617.png)
+![](attachments/Pasted%20image%2020220620222412.png)
 
 This seems to be fixed in the most recent release of `wkhtmltopdf`, as indicated in the [release notes](https://github.com/wkhtmltopdf/wkhtmltopdf/releases/tag/0.12.6) for **0.12.6**: 
 
