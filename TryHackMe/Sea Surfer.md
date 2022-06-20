@@ -362,12 +362,12 @@ Third, **LinPEAS** has identified something called `ptrace protection` as disabl
 
 ```
 ╔══════════╣ Checking sudo tokens
-╚ https://book.hacktricks.xyz/linux-unix/privilege-escalation#reusing-sudo-tokens
+╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#reusing-sudo-tokens
 ptrace protection is disabled (0)
 gdb wasn't found in PATH, this might still be vulnerable but linpeas won't be able to check it
 ```
 
-As we read through the **HackTricks** [link](https://book.hacktricks.xyz/linux-unix/privilege-escalation#reusing-sudo-tokens) and subsequently the [git repo](https://github.com/nongiach/sudo_inject), it seemed something worth trying. It's not fully clear to us yet, but **Linux** systems with `ptrace` fully enabled allows the observation of the same user's `sudo` tokens, which are reusable for a certain amount of time. Let's look at the requirements:
+As we read through the **HackTricks** [link](https://book.hacktricks.xyz/linux-hardening/privilege-escalation#reusing-sudo-tokens) and subsequently the [git repo](https://github.com/nongiach/sudo_inject), it seemed something worth trying. It's not fully clear to us yet, but **Linux** systems with `ptrace` fully enabled allows the observation of the same user's `sudo` tokens, which are reusable for a certain amount of time. Let's look at the requirements:
 
 | Requirement      | Fulfilled? |
 | ----------- | ----------- |
@@ -406,17 +406,7 @@ GNU gdb (Ubuntu 9.1-0ubuntu1) 9.1
 Copyright (C) 2020 Free Software Foundation, Inc.
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-Type "show copying" and "show warranty" for details.
-This GDB was configured as "x86_64-linux-gnu".
-Type "show configuration" for configuration details.
-For bug reporting instructions, please see:
-<http://www.gnu.org/software/gdb/bugs/>.
-Find the GDB manual and other documentation resources online at:
-    <http://www.gnu.org/software/gdb/documentation/>.
-
-For help, type "help".
-Type "apropos word" to search for commands related to "word".
+...
 (gdb) Quit
 kyle@seasurfer:/tmp/gdb/usr/bin$ export PATH=$(pwd):$PATH
 ```
