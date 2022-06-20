@@ -3,7 +3,6 @@
 ![Pasted image 20220421182735.png](attachments/Pasted%20image%2020220421182735.png)
 
 ## Info
-
 https://tryhackme.com/room/seasurfer
 
 First ever **TryHackMe** room, showcasing my favourite vulnerability in real-life web audits. I love **TryHackMe**, since it's the place where I first started to learn about infosec, but they were missing this particular vulnerability so I decided to make a room for it myself.
@@ -221,7 +220,7 @@ $loc = "http://127.0.0.1/"; if(isset($_GET['p'])){ $loc = $_GET['p']; } header('
 ?>
 ```
 
-We could also do this with straight up `netcat` manually entering the `HTTP` response every time:
+A simple `php -S 0.0.0.0:80` command would also suffice to host the `PHP` file. We can't use the usual `python -m http.server` server, because then our code wouldn't execute. We could also do this with straight up `netcat` by manually entering the `HTTP` response every time, but it's very tedious:
 
 ```http
 HTTP/1.1 301 Moved Permanently
