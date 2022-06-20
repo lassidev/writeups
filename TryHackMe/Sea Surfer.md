@@ -168,7 +168,7 @@ Accept-Language: en,*
 Host: $ATTACKERIP:1234
 ```
 
-If we were not in CTF land, we could try to abuse the **AWS** link-local address `169.254.169.254` to perhaps gain access to the metadata and other sensitive information, like [this](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html). But for **TryHackMe**, that's out of scope.
+If we were not in CTF land, we could try to abuse the link-local address `169.254.169.254` to perhaps gain access to the cloud metadata and other sensitive information, like [this](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html). But for **TryHackMe**, that's out of scope.
 
 How about accessing internal files from the server, leveraging the initial server-side `XSS` to `SSRF` to `LFI`?
 
@@ -197,7 +197,9 @@ Let's research a bit by googling some of these keywords: "**wkhtmltopdf**" "**ss
 We come across these great three links:
 
 https://github.com/wkhtmltopdf/wkhtmltopdf/issues/3570
+
 https://www.jomar.fr/posts/2021/ssrf_through_pdf_generation/
+
 http://hassankhanyusufzai.com/SSRF-to-LFI/
 
 It seems as though by default `wkhtmltopdf` doesn't properly check if a redirection is happening to a local file, and fetches it. Let's construct a diagram of this happening:
@@ -237,7 +239,7 @@ Now that we have a way to read files on the server, on to enumeration. Seeing as
 
 A very common example of such behaviour is **WordPress** that by default has the database credentials input into `wp-config.php` - and as we know, there is an instance of that running on the server. Furthermore, we also found the `/adminer/` directory, where we could log into the `SQL` server.
 
-After a bit of trial and error with the `SSRF` -> `LFI` vulnerability, we found the **WordPress** configuration file at `/var/www/wordpress/wp-config.php`:
+After a bit of trial, error, blood, and sweat with the `SSRF` -> `LFI` vulnerability, we found the **WordPress** configuration file at `/var/www/wordpress/wp-config.php`:
 
 ![Pasted image 20220419130226.png](attachments/Pasted%20image%2020220419130226.png)
 
@@ -515,6 +517,8 @@ kyle@seasurfer:~$ sudo -s
 root@seasurfer:/home/kyle# cat /root/root.txt
 THM{REDACTED}
 ```
+
+(this was originally an unintended path, found by [onurshin](https://tryhackme.com/p/onurshin). Decided to keep it, since it's pretty hard to find)
 
 ## End
 
