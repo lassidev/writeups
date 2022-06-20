@@ -220,7 +220,7 @@ $loc = "http://127.0.0.1/"; if(isset($_GET['p'])){ $loc = $_GET['p']; } header('
 ?>
 ```
 
-A simple `php -S 0.0.0.0:80` command would also suffice to host the `PHP` file. We can't use the usual `python -m http.server` server, because then our code wouldn't execute. We could also do this with straight up `netcat` by manually entering the `HTTP` response every time, but it's very tedious:
+A simple `php -S 0.0.0.0:80` command would also suffice to host the `PHP` file. We can't use the usual `python -m http.server`, because then our code wouldn't execute. We could also do this with straight up `netcat` by manually entering the `HTTP` response every time, but it's very tedious:
 
 ```http
 HTTP/1.1 301 Moved Permanently
