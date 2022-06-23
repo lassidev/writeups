@@ -1,6 +1,6 @@
 # Sea Surfer Official Writeup
 
-![Pasted image 20220421182735.png](attachments/Pasted%20image%2020220421182735.png | width=100)
+![](attachments/Pasted%20image%2020220421182735.png | width=200px)
 
 ## Info
 https://tryhackme.com/room/seasurfer
