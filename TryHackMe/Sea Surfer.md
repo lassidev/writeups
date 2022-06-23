@@ -1,11 +1,15 @@
 # Sea Surfer Official Writeup
 
-![Pasted image 20220421182735.png](attachments/Pasted%20image%2020220421182735.png)
+![Pasted image 20220421182735.png](attachments/Pasted%20image%2020220421182735.png | width=100)
 
 ## Info
 https://tryhackme.com/room/seasurfer
 
-First ever **TryHackMe** room, showcasing my favourite vulnerability in real-life web audits. I love **TryHackMe**, since it's the place where I first started to learn about infosec, but they were missing this particular vulnerability so I decided to make a room for it myself.
+First ever **TryHackMe** room, made by yours truly!
+
+Inspiration for the box's foothold was a real-world pentest, where I managed to read files from the server with the exact same `PDF SSRF redirection to LFI` - exploit.
+
+I love **TryHackMe**, since it's the place where I first started to learn about infosec, but they were missing this particular vulnerability so I decided to make a room for it myself.
 
 Ok, walkthrough roleplay on:
 
@@ -81,7 +85,7 @@ We're probably mostly interested in **Kyle**, as they are the company's sysadmin
 lassi@kali:~$ wpscan --url http://seasurfer.thm/ --api-token <redacted> -e ap, cb, u
 ```
 
-There was really nothing exciting found, and the site seemed to be up to date with no known vulnerabilities. How about running `gobuster` again, this time with a bigger `big.txt` wordlist, maybe this virtual host could have some hidden directories?
+There was really nothing exciting found, apart from a plugin XSS vulnerability which requires admin privileges. Otherwise it seems to be a pretty up to date default Wordpress installation. How about running `gobuster` again, this time with a bigger `big.txt` wordlist, maybe this virtual host could have some hidden directories?
 
 ```zsh
 lassi@kali:~$ gobuster -w /usr/share/seclists/Discovery/Web-Content/big.txt dir -u http://seasurfer.thm/ 
@@ -337,7 +341,11 @@ $ cat /home/kyle/user.txt
 THM{REDACTED}
 ```
 
-Great. First things first, let's get away from this horrible pseudoterminal reverse shell, and add our public key to `kyle`'s `authorized_keys` file. Then we can simply `ssh` in. Afterwards, it's probably best to remove the wildcard payloads to keep the machine from spawning multiple reverse shells which freeze, as this will likely kill the server's performance over enough time.
+Great. First things first, let's get away from this horrible pseudoterminal reverse shell.
+
+**Kyle** seems to have left an `SSH` private "testkey" in their `.ssh` folder - and we can use it to `SSH` into the box as `kyle`.
+
+Afterwards, it's probably best to remove the wildcard payloads to keep the machine from spawning multiple reverse shells which freeze, as this will likely kill the server's performance over enough time. 
 
 ### root, method 1
 
@@ -411,7 +419,11 @@ This is free software: you are free to change and redistribute it.
 kyle@seasurfer:/tmp/gdb/usr/bin$ export PATH=$(pwd):$PATH
 ```
 
-Now all what's left for us to do is fire away the `exploit.sh` script from the `sudo_inject` [git repo](https://github.com/nongiach/sudo_inject), hoping for the best!
+Now we should have all of the prerequisites for the exploits met.
+
+(sidenote, do not use the `exploit.sh` from the [sudo_inject git repo](https://github.com/nongiach/sudo_inject). For whatever reason, the `activate_sudo_token` binary seems to corrupt shell processes on a random chance - if anyone is able to figure it out, please contact me)
+
+Now all what's left for us to do is fire away the `exploit_v2.sh` script, hoping for the best!
 
 ```zsh
 kyle@seasurfer:/tmp/sudo_inject$ sh exploit.sh
@@ -460,7 +472,7 @@ root
 ```
 
 ### root, method 2
-After some enumeration on the box, we found out that **PAM** for `sudo` has been configured to accept `ssh` keys:
+After some enumeration on the box, we found out that **PAM** for `sudo` has been configured to accept `SSH` keys:
 
 ```zsh
 kyle@seasurfer:~$ cat /etc/pam.d/sudo
@@ -485,7 +497,7 @@ kyle        1060  0.0  0.2   6892  2036 pts/0    Ss+  14:36   0:00 bash -c sudo 
 ...
 ```
 
-Finally, we found an `ssh` agent socket file for the shell process we can access:
+Finally, we found an `SSH` agent socket file for the shell process we can access:
 
 ```zsh
 kyle@seasurfer:~$ ls -lpah /tmp/ssh-I2y4KwPuPD/agent.1059 
@@ -516,7 +528,7 @@ THM{REDACTED}
 
 That's it! Submit the flags and complete the room. Hope you enjoyed it! :)
 
-Extra credit: How were the processes of SSH'ing to `kyle` from `root` hidden from `ps aux`?
-Extra credit 2: How did the `SSHtoserver.sh` script use `sudo` on the server without supplying `kyle`'s' password? Take a look around some authentication config files on the box!
+Extra credit: How were the processes of ssh'ing to `kyle` from `root` hidden from `ps aux`?
+Extra credit 2: How did the `SSHtoserver.sh` script use `sudo` on the server without supplying `kyle`'s' password? This is related to onurshin's find!
 
 Credits for the images and some code are in `/root/credits.txt`
