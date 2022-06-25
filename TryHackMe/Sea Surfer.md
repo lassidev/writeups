@@ -343,6 +343,7 @@ THM{REDACTED}
 
 Great. First things first, let's get away from this horrible pseudoterminal reverse shell.
 
+(pending an update of the box in THM - as of now, just input your own key into authorized_keys)
 **Kyle** seems to have left an `SSH` private "testkey" in their `.ssh` folder - and we can use it to `SSH` into the box as `kyle`.
 
 Afterwards, it's probably best to remove the wildcard payloads to keep the machine from spawning multiple reverse shells which freeze, as this will likely kill the server's performance over enough time. 
